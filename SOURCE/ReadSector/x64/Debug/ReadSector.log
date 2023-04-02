@@ -1,0 +1,3 @@
+﻿  ReadSector.cpp
+D:\Study\HDH\CSC10007_OS\SOURCE\ReadSector\ReadSector.cpp(39): warning C4715: 'ReadSector': not all control paths return a value
+  ReadSector.vcxproj -> D:\Study\HDH\CSC10007_OS\SOURCE\x64\Debug\ReadSector.exe
