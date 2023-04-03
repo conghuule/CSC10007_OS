@@ -140,9 +140,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NTFS_PBS.cpp" />
     <ClCompile Include="ReadSector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="NTFS_PBS.h" />
     <ClInclude Include="ReadSector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

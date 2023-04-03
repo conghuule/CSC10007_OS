@@ -21,9 +21,15 @@
     <ClCompile Include="ReadSector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NTFS_PBS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ReadSector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NTFS_PBS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

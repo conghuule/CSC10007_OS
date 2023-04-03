@@ -82,9 +82,11 @@ unsigned int HexToDec(string n)
 /// <param name="sector">sector array</param>
 void displaySector(BYTE sector[512])
 {
+    cout << "==============================================================\n";
+    cout << "Sector's content:\n";
     for (unsigned int i = 0; i < 512; i++)
     {
-        if (i % 16 == 0)
+        if (i % 16 == 0  && i > 0)
         {
             cout << endl;
         }
@@ -97,12 +99,12 @@ void displaySector(BYTE sector[512])
 /// Read a number of BYTEs from a given offset 
 /// </summary>
 /// <param name="sector">The sector you need to read</param>
+/// <param name="res">result in hexa</param>
 /// <param name="offset">The offset you want to start reading (hexadecimal)</param>
 /// <param name="n_of_bytes">number of bytes you want to read from the offset</param>
 /// <returns></returns>
-int readByteByOffset(BYTE sector[512], string offset, unsigned int n_of_bytes)
+int readByteByOffset(BYTE sector[512], string& res, string offset, unsigned int n_of_bytes)
 {
-    string res = "";
     unsigned int index = HexToDec(offset);
     for (unsigned int i = n_of_bytes - 1; i >= 0; i--)
     {

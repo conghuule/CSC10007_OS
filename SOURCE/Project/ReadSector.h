@@ -12,4 +12,4 @@ unsigned int ByteToDec(BYTE);
 string DecToHex(unsigned int);
 unsigned int HexToDec(string);
 void displaySector(BYTE sector[512]);
-int readByteByOffset(BYTE sector[512], string, unsigned int);
+int readByteByOffset(BYTE sector[512], string&, string, unsigned int);
