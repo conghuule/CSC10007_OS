@@ -21,10 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{9c7baa82-eec2-41b8-9b63-e2496a896a05}</ProjectGuid>
-    <RootNamespace>ReadSector</RootNamespace>
+    <ProjectGuid>{5c96e41d-2803-4868-8c1f-30e174909f28}</ProjectGuid>
+    <RootNamespace>Project</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>ReadSector</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
