@@ -1,0 +1,7 @@
+﻿  FAT32.cpp
+  Main.cpp
+  NTFS.cpp
+  ReadSector.cpp
+  Generating Code...
+C:\Users\Huu\Documents\D\CNTT_K20\HK6\HĐH_Hệ điều hành\Code\FolderManager\FolderManager\ReadSector.cpp(35): warning C4715: 'ReadSector': not all control paths return a value
+  FolderManager.vcxproj -> C:\Users\Huu\Documents\D\CNTT_K20\HK6\HĐH_Hệ điều hành\Code\FolderManager\x64\Debug\FolderManager.exe
