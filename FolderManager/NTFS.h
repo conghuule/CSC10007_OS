@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "ReadSector.h"
+
 struct NTFS_PBS_Struct {
 	unsigned int BytePerSec;
 	unsigned int SecPerClus;

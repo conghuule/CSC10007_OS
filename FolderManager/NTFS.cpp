@@ -1,5 +1,6 @@
-#include "NTFS.h"
+﻿#include "NTFS.h"
 
+//---------------Đọc thông tin chi tiết của một phân vùng--------------- 
 void DisplayPBSInfo(BYTE sector[512])
 {
 	NTFS_PBS_Struct PBS;
@@ -28,3 +29,5 @@ void DisplayPBSInfo(BYTE sector[512])
 	cout << "Cluster Per Index Buffer: " << PBS.ClusPerIndexBuff << endl;
 	cout << "Volume Serial Number: " << PBS.VolSerialNumHex << endl;
 }
+
+//---------------Hiển thị thông tin cây thư mục của phân vùng---------------

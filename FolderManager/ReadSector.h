@@ -11,6 +11,6 @@ int ReadSector(LPCWSTR, int, BYTE sector[512]);
 unsigned int ByteToDec(BYTE);
 string DecToHex(unsigned int);
 unsigned int HexToDec(string);
+string HexToAscii(string);
 void displaySector(BYTE sector[512]);
 int readByteByOffset(BYTE sector[512], string&, string, unsigned int);
-string readByteByOffset_string(BYTE sector[512], string&, string, unsigned int);

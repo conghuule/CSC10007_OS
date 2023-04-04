@@ -24,6 +24,8 @@ struct FAT32_PBS_STRUCT
 	string RDETClusterBegin_Hex = "";
 	string OtherInfoSector_Hex = "";
 	string PBSCopySector_Hex = "";
+	string IsFAT32_Hex = "";
 };
 
+//bool IsFAT32(BYTE sector[512]);
 void DisplayFAT32PBSInfo(BYTE Sector[512]);
