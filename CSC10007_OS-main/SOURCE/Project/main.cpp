@@ -1,3 +1,4 @@
+#include "NTFS_PBS.h"
 #include "FAT32_PBS.h"
 #include "ReadSector.h"
 int main(int argc, char** argv)
@@ -10,6 +11,9 @@ int main(int argc, char** argv)
     //string res = "";
     //cout << readByteByOffset(sector, res, "0b", 2); //read 2 BYTES from offset "0b"
     displaySector(sector);
-    DisplayFAT32PBSInfo(sector);
+    if (IsFAT32(sector) == true)
+        DisplayFAT32PBSInfo(sector);
+    else
+        DisplayPBSInfo(sector); // NTFS
     return 0;
 }

@@ -1,0 +1,9 @@
+﻿  FAT32_PBS.cpp
+  NTFS_PBS.cpp
+  ReadSector.cpp
+D:\OneDrive\Documents\SLIDES NAM 3\HDH\CSC10007_OS-main\SOURCE\Project\ReadSector.cpp(83,5): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+D:\OneDrive\Documents\SLIDES NAM 3\HDH\CSC10007_OS-main\SOURCE\Project\ReadSector.cpp(90,17): warning C4244: 'initializing': conversion from 'unsigned long' to 'char', possible loss of data
+  main.cpp
+  Generating Code...
+D:\OneDrive\Documents\SLIDES NAM 3\HDH\CSC10007_OS-main\SOURCE\Project\ReadSector.cpp(39): warning C4715: 'ReadSector': not all control paths return a value
+  Project.vcxproj -> D:\OneDrive\Documents\SLIDES NAM 3\HDH\CSC10007_OS-main\SOURCE\x64\Debug\Project.exe

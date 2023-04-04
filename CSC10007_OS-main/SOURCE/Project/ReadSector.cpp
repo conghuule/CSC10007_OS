@@ -76,6 +76,24 @@ unsigned int HexToDec(string n)
     ss >> res;
     return res;
 }
+
+/// <summary>
+/// Convert a Hexadecimal value to Text (in ASCII encoding)
+/// </summary>
+/// <param name="n">hexadecimal (string) value that needs to convert</param>
+/// <returns></returns>
+string HexToAscii(string n)
+{
+    string ascii = "";
+    for (size_t i = n.length() - 2; i > 0; i -= 2)
+    {
+        string part = n.substr(i, 2);
+        char ch = stoul(part, nullptr, 16);
+        ascii += ch;
+    }
+    return ascii;
+}
+
 /// <summary>
 /// display content of a Sector
 /// </summary>
@@ -96,7 +114,7 @@ void displaySector(BYTE sector[512])
     }
 }
 /// <summary>
-/// Read a number of BYTEs from a given offset, returns int value
+/// Read a number of BYTEs from a given offset 
 /// </summary>
 /// <param name="sector">The sector you need to read</param>
 /// <param name="res">result in hexa</param>
@@ -118,25 +136,3 @@ int readByteByOffset(BYTE sector[512], string& res, string offset, unsigned int 
     return HexToDec(res);
 }
 
-/// <summary>
-/// Read a number of BYTEs from a given offset, return string value 
-/// </summary>
-/// <param name="sector">The sector you need to read</param>
-/// <param name="res">result in hexa</param>
-/// <param name="offset">The offset you want to start reading (hexadecimal)</param>
-/// <param name="n_of_bytes">number of bytes you want to read from the offset</param>
-/// <returns></returns>
-string readByteByOffset_string(BYTE sector[512], string& res, string offset, unsigned int n_of_bytes)
-{
-    unsigned int index = HexToDec(offset);
-    for (unsigned int i = n_of_bytes - 1; i >= 0; i--)
-    {
-        BYTE x = sector[index + i];
-        res += DecToHex(ByteToDec(x));
-        if (i == 0)
-        {
-            break;
-        }
-    }
-    return res;
-}

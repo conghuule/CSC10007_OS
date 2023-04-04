@@ -1,9 +1,21 @@
 #include "FAT32_PBS.h"
 
+bool IsFAT32(BYTE sector[512])
+{
+	FAT32_PBS_STRUCT PBS;
+
+	string res = HexToAscii(DecToHex(readByteByOffset(sector, PBS.IsFAT32_Hex, "52", 8)));
+	if (res.find("FAT32") != string::npos)
+		return true;
+	else
+		return false;
+}
+
 void DisplayFAT32PBSInfo(BYTE sector[512])
 {
 	FAT32_PBS_STRUCT PBS;
-	// PBS.BytePerSec = readByteByOffset(sector, PBS.BytePerSecHex, "0b", 2);
+
+	// Read
 	PBS.BytesPerSector = readByteByOffset(sector, PBS.BytesPerCluster_Hex, "0b", 2);
 	PBS.SectorsPerCluster = readByteByOffset(sector, PBS.SectorsPerCluster_Hex, "0d", 1);
 	PBS.SectorsInPBS = readByteByOffset(sector, PBS.SectorsInPBS_Hex, "0e", 2);
