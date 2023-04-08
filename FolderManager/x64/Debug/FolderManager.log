@@ -1,6 +1,4 @@
-﻿  FAT32.cpp
-  Main.cpp
-  ReadSector.cpp
-  Generating Code...
-C:\Users\Huu\Documents\D\CNTT_K20\HK6\HĐH_Hệ điều hành\Code\conghuule\CSC10007_OS\FolderManager\ReadSector.cpp(35): warning C4715: 'ReadSector': not all control paths return a value
+﻿  NTFS.cpp
+C:\Users\Huu\Documents\D\CNTT_K20\HK6\HĐH_Hệ điều hành\Code\conghuule\CSC10007_OS\FolderManager\NTFS.cpp(225,41): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\Huu\Documents\D\CNTT_K20\HK6\HĐH_Hệ điều hành\Code\conghuule\CSC10007_OS\FolderManager\NTFS.cpp(239,93): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
   FolderManager.vcxproj -> C:\Users\Huu\Documents\D\CNTT_K20\HK6\HĐH_Hệ điều hành\Code\conghuule\CSC10007_OS\x64\Debug\FolderManager.exe

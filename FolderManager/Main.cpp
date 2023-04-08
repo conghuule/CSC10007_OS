@@ -5,7 +5,11 @@
 int main(int argc, char** argv)
 {
     BYTE sector[512];
-    string USB = "E";
+
+    string USB = "";
+    cout << "Label Name of USB: ";
+    cin >> USB;
+
     wstring convert(USB.begin(), USB.end());
     wstring path = L"\\\\.\\" + convert + L":";
     ReadSector(path.c_str(), 0, sector); //read the first sector, save info into sector array
@@ -14,8 +18,11 @@ int main(int argc, char** argv)
     displaySector(sector);
 
     //---------------Đọc thông tin chi tiết của một phân vùng--------------- 
-    DisplayFAT32PBSInfo(sector);
-    DisplayPBSInfo(sector);
+   /* DisplayFAT32PBSInfo(sector);
+    DisplayPBSInfo(sector);*/
+    //---------------------------
+    displayNTFS(path.c_str(), sector);
+
 
     return 0;
 }

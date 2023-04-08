@@ -1,4 +1,4 @@
-#include "FAT32.h"
+﻿#include "FAT32.h"
 
 //bool IsFAT32(BYTE sector[512])
 //{
