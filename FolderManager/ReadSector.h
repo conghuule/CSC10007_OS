@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <ios>
 using namespace std;
 
 int ReadSector(LPCWSTR, int, BYTE sector[512]);
@@ -16,5 +17,5 @@ string DecToHex(unsigned int);
 unsigned int HexToDec(string);
 string HexToAscii(string);
 void displaySector(BYTE sector[512]);
-int readByteByOffset(BYTE sector[512], string&, string, unsigned int);
+unsigned int readByteByOffset(BYTE sector[512], string&, string, unsigned int);
 char HexToChar(string value);

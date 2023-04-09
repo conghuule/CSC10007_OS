@@ -99,30 +99,27 @@ string DecToHex(unsigned int n)
 /// </summary>
 /// <param name="n">hexadecimal (string) value that needs to convert</param>
 /// <returns></returns>
-unsigned int HexToDec(string n)
+unsigned int HexToDec(string hex)
 {
-    stringstream ss;
+    /*stringstream ss;
     ss << hex << n;
     unsigned int res;
     ss >> res;
-    return res;
-}
-
-/// <summary>
-/// Convert a Hexadecimal value to Text (in ASCII encoding)
-/// </summary>
-/// <param name="n">hexadecimal (string) value that needs to convert</param>
-/// <returns></returns>
-string HexToAscii(string n)
-{
-    string ascii = "";
-    for (size_t i = n.length() - 2; i > 0; i -= 2)
-    {
-        string part = n.substr(i, 2);
-        char ch = stoul(part, nullptr, 16);
-        ascii += ch;
+    return res;*/
+    unsigned int result = 0;
+    for (int i = 0; i < hex.length(); i++) {
+        if (hex[i] >= 48 && hex[i] <= 57)
+        {
+            result += (hex[i] - 48) * pow(16, hex.length() - i - 1);
+        }
+        else if (hex[i] >= 65 && hex[i] <= 70) {
+            result += (hex[i] - 55) * pow(16, hex.length() - i - 1);
+        }
+        else if (hex[i] >= 97 && hex[i] <= 102) {
+            result += (hex[i] - 87) * pow(16, hex.length() - i - 1);
+        }
     }
-    return ascii;
+    return result;
 }
 
 /// <summary>
@@ -131,13 +128,20 @@ string HexToAscii(string n)
 /// <param name="sector">sector array</param>
 void displaySector(BYTE sector[512])
 {
-    cout << "==============================================================\n";
-    cout << "Sector's content:\n";
+    cout << "========================================================================\n";
+    cout << setw(45) << setfill(' ') << "SECTOR CONTENT\n\n";
+    cout << "          ";
+    for (unsigned int i = 0; i < 16; i++)
+    {
+        cout << DecToHex(i) << "  ";
+    }
+
     for (unsigned int i = 0; i < 512; i++)
     {
-        if (i % 16 == 0 && i > 0)
+        if (i % 16 == 0)
         {
             cout << endl;
+            cout << setw(8) << setfill('0') << DecToHex(i) << "  ";
         }
         BYTE x = sector[i];
         string hex = DecToHex(ByteToDec(x));
@@ -152,7 +156,7 @@ void displaySector(BYTE sector[512])
 /// <param name="offset">The offset you want to start reading (hexadecimal)</param>
 /// <param name="n_of_bytes">number of bytes you want to read from the offset</param>
 /// <returns></returns>
-int readByteByOffset(BYTE sector[512], string& res, string offset, unsigned int n_of_bytes)
+unsigned int readByteByOffset(BYTE sector[512], string& res, string offset, unsigned int n_of_bytes)
 {
     unsigned int index = HexToDec(offset);
     res = "";
@@ -165,7 +169,8 @@ int readByteByOffset(BYTE sector[512], string& res, string offset, unsigned int 
             break;
         }
     }
-    return HexToDec(res);
+    unsigned int ans = HexToDec(res);
+    return ans;
 }
 
 /// <summary>
@@ -194,7 +199,6 @@ string readByteByOffset_string(BYTE sector[512], string& res, string offset, uns
 //----
 char HexToChar(string value)
 {
-
     char res = 0;
     for (int i = 0; i < value.length(); i++)
     {
