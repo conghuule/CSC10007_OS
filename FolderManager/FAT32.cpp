@@ -34,8 +34,8 @@ void DisplayFAT32PBSInfo(BYTE sector[512])
 	cout << "Number of Sectors in Partition Boot Sector: " << PBS.SectorsInPBS << endl;
 	cout << "Number of FATs: " << PBS.NumOfFAT << endl;
 	cout << "Number of Heads: " << PBS.NumOfHead << endl;
-	cout << "Volume size (bytes): " << PBS.VolumeSize << endl;
-	cout << "Size of each FAT (bytes): " << PBS.FATSize << endl;
+	cout << "Volume size (sectors): " << PBS.VolumeSize << endl;
+	cout << "Size of each FAT (sectors): " << PBS.FATSize << endl;
 	cout << "RDET beginning cluster: " << PBS.RDETClusterBegin << endl;
 	cout << "Sector containing other info: " << PBS.OtherInfoSector << endl;
 	cout << "Sector containing a copy of PBS: " << PBS.PBSCopySector << endl;
