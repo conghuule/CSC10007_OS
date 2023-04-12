@@ -13,14 +13,14 @@ void DisplayPBSInfo(BYTE sector[512], NTFS_PBS_Struct& PBS)
 	PBS.MFTBegin = readByteByOffset(sector, PBS.MFTBeginHex, "30", 8);
 	PBS.MFTMirrBegin = readByteByOffset(sector, PBS.MFTMirrBeginHex, "38", 8);
 	PBS.MFTEntrySize = readByteByOffset(sector, PBS.MFTEntrySizeHex, "40", 1);
-	PBS.MFTEntrySize = (unsigned int)pow(2,abs(HexToChar(PBS.MFTEntrySizeHex)));
+	PBS.MFTEntrySize = (unsigned int)pow(2, abs(HexToChar(PBS.MFTEntrySizeHex)));
 	PBS.ClusPerIndexBuff = readByteByOffset(sector, PBS.ClusPerIndexBuffHex, "44", 1);
 	PBS.VolSerialNum = readByteByOffset(sector, PBS.VolSerialNumHex, "48", 8);
-	cout << "\n==============================================================\n";
-	cout << "NTFS Partition Boot Sector Info:\n";
+	cout << "\n========================================================================\n";
+	cout << setw(52) << setfill(' ') << "NTFS PARTITION BOOT SECTOR INFO\n\n";
 	cout << "Bytes Per Sector: " << PBS.BytePerSec << endl;
 	cout << "Sectors Per Cluster: " << PBS.SecPerClus << endl;
-	cout << "Disk Type: " << PBS.DiskType << " = " <<PBS.DiskTypeHex << endl;
+	cout << "Disk Type: " << PBS.DiskType << " = " << PBS.DiskTypeHex << endl;
 	cout << "Sectors Per Track: " << PBS.SecPerTrack << endl;
 	cout << "Number of Heads: " << PBS.NumOfHead << endl;
 	cout << "Sector start of Dick Logic: " << PBS.DickSectorBegin << endl;
@@ -37,7 +37,7 @@ void DisplayPBSInfo(BYTE sector[512], NTFS_PBS_Struct& PBS)
 bool isNTFS(BYTE sector[512])
 {
 	string type = "";
-	
+
 	for (int i = 0; i < 8; i++)
 	{
 		//Offset begin is 3
@@ -164,6 +164,43 @@ void readMFTEntryHeader(BYTE*& sector, MFT_Entry_Header& pbs)
 	pbs.idOfThisRecord = readByteByOffset(sector, pbs.idOfThisRecordHex, "2c", 4);
 }
 
+string attributeType(unsigned int value)
+{
+	unsigned short type = 0;
+	string res = "";
+
+	while (value > 0)
+	{
+
+		if (value % 2 == 1)
+		{
+			switch (type)
+			{
+			case 0: res += "Read Only "; break;
+			case 1: res += "Hidden "; break;
+			case 2: res += "System "; break;
+			case 5: res += "Achive "; break;
+			case 6: res += "Device "; break;
+			case 7: res += "Normal "; break;
+			case 8: res += "Temporary "; break;
+			case 9: res += "Sparse "; break;
+			case 10: res += "Resparese "; break;
+			case 11: res += "Compressed "; break;
+			case 12: res += "Offline "; break;
+			case 13: res += "Not Content "; break;
+			case 14: res += "Encrypted "; break;
+			case 28: res += "Directory "; break;
+			case 29: res += "Index View "; break;
+
+			}
+		}
+		type++;
+		value >>= 1;
+	}
+
+	return res;
+}
+
 void readMFTEntryAttribute(BYTE* sector, MFT_Entry_Attribute& pbs)
 {
 	MFT_Entry_Attribute_Header& headerAttribute = pbs.header;
@@ -195,9 +232,30 @@ void readMTFFileName(BYTE* sector, FileName_Attribute& PBS)
 {
 	PBS.mftEntryFather = readByteByOffset(sector, PBS.mftEntryFatherHex, "0", 8);
 	PBS.flags = readByteByOffset(sector, PBS.flagsHex, "38", 4);
+	PBS.flagsHex = attributeType(PBS.flags);
+
 	PBS.lengthName = readByteByOffset(sector, PBS.lengthNameHex, "40", 1);
 	PBS.typeName = readByteByOffset(sector, PBS.typeNameHex, "41", 1);
-	PBS.fileName = readByteByOffset(sector, PBS.fileNameHex, "42", PBS.lengthName*2);
+	PBS.fileName = readByteByOffset(sector, PBS.fileNameHex, "42", PBS.lengthName * 2);
+
+	unsigned int type_name = HexToDec(PBS.typeNameHex);
+	switch (type_name)
+	{
+	case 0:
+		PBS.typeNameHex = "POSIX";
+		break;
+	case 1:
+		PBS.typeNameHex = "Win32";
+		break;
+	case 2:
+		PBS.typeNameHex = "DOS";
+		break;
+	case 3:
+		PBS.typeNameHex = "Win32 & DOS";
+		break;
+	default:
+		break;
+	}
 
 	string filename = "";
 	unsigned int i = PBS.lengthName * 2 - 1;
@@ -227,25 +285,28 @@ void readMFTData(BYTE* sector, Data_Attribute& PBS, unsigned int size, unsigned 
 		{
 			if (i > dataTemp.length())
 				break;
-			size_t found = (dataTemp.substr(i,2)).find("NTFS");
+			size_t found = (dataTemp.substr(i, 2)).find("NTFS");
 			if (found == string::npos)
-				PBS.dataHex += HexToAscii(dataTemp.substr(i, 2));
-			i-=2;
+			{
+				string tempsub = dataTemp.substr(i, 2);
+				PBS.dataHex += HexToDec(tempsub);
+			}
+			i -= 2;
 		}
 	}
-	else 
+	else
 	{
 		string data = DecToHex(VCN);
 		unsigned int dataSize = data.length() % 2 == 0 ? data.length() / 2 : data.length() / 2 + 1;
 		unsigned int dataOffset = readByteByOffset(sector, dataTemp, "20", 2);
 		PBS.sizeContent = readByteByOffset(sector + dataOffset, PBS.sizeContentHex, "00", 1);
 		PBS.countCluster = readByteByOffset(sector + dataOffset, PBS.countClusterHex, "01", dataSize);
-		PBS.firstCluster = readByteByOffset(sector + dataOffset, PBS.firstClusterHex, DecToHex(1+ dataSize), fullSize - dataOffset - 1 - dataSize);
+		PBS.firstCluster = readByteByOffset(sector + dataOffset, PBS.firstClusterHex, DecToHex(1 + dataSize), fullSize - dataOffset - 1 - dataSize);
 		PBS.dataHex = "";
 	}
 }
 
-bool NTFSTotalResearch(LPCWSTR  drive, BYTE sector[512], NTFS_PBS_Struct& PBS, MFT& fileMFT, NTFS_Directory_File& directoryNTFS)
+bool NTFSTotalResearch(LPCWSTR  drive, BYTE sector[512], NTFS_PBS_Struct& PBS, MFT& fileMFT, NTFS_Directory_File& DirectoryNTFS)
 {
 
 	if (isNTFS(sector) == true)
@@ -255,7 +316,7 @@ bool NTFSTotalResearch(LPCWSTR  drive, BYTE sector[512], NTFS_PBS_Struct& PBS, M
 		//read MFT
 		unsigned int cnt = 36;
 		bool flag = true;
-		vector<NTFS_Directory_File>& listFile = directoryNTFS.chillFile;
+		vector<NTFS_Directory_File>& listFile = DirectoryNTFS.chillFile;
 
 		while (true)
 		{
@@ -263,17 +324,14 @@ bool NTFSTotalResearch(LPCWSTR  drive, BYTE sector[512], NTFS_PBS_Struct& PBS, M
 			if (flag == false) break;
 			fileMFT.arrMFTEntry.push_back(entryAdd);
 			fileMFT.numberMFTEntry++;
-
 			cnt++;
 		}
-
 		for (unsigned int k = 0; k < fileMFT.numberMFTEntry; k++)
 		{
 			NTFS_Directory_File file;
 			file.idFile = fileMFT.arrMFTEntry[k].header.idOfThisRecord;
 			file.data = NULL;
 			file.allowPrintData = false;
-
 			MFT_Entry temp = fileMFT.arrMFTEntry[k];
 			for (unsigned i = 0; i < temp.numberAttribute; i++)
 			{
@@ -290,7 +348,7 @@ bool NTFSTotalResearch(LPCWSTR  drive, BYTE sector[512], NTFS_PBS_Struct& PBS, M
 
 					if (k == 0)
 					{
-						directoryNTFS.idFile = temp.attribute[i].fileName->mftEntryFather;
+						DirectoryNTFS.idFile = temp.attribute[i].fileName->mftEntryFather;
 					}
 
 					if (temp.attribute[i].fileName->fileNameHex.find("txt") != string::npos ||
@@ -309,9 +367,9 @@ bool NTFSTotalResearch(LPCWSTR  drive, BYTE sector[512], NTFS_PBS_Struct& PBS, M
 					}
 				}
 			}
-			if (!AddNTFSFileToTree(directoryNTFS, file))
+			if (!AddNTFSFileToTree(DirectoryNTFS, file))
 			{
-				directoryNTFS.chillFile.push_back(file);
+				DirectoryNTFS.chillFile.push_back(file);
 			}
 		}
 		return true;
@@ -332,23 +390,22 @@ bool AddNTFSFileToTree(NTFS_Directory_File& root, NTFS_Directory_File& inp)
 		{
 			return true;
 		}
-
 	}
 	return false;
 
 }
 
-void DisplayNTFSFileTree(LPCWSTR  drive, NTFS_Directory_File root, NTFS_PBS_Struct origin, int level)
+void DisplayNTFSFileTree(LPCWSTR  drive, NTFS_Directory_File root, NTFS_PBS_Struct PBS, int level)
 {
 	for (unsigned int i = 0; i < root.chillFile.size(); i++)
 	{
 		NTFS_Directory_File& temp = root.chillFile[i];
-		DisplayNTFSDirectoryFile(drive, temp, origin, level);
-		DisplayNTFSFileTree(drive, root.chillFile[i], origin, level + 1);
+		DisplayNTFSDirectoryFile(drive, temp, PBS, level);
+		DisplayNTFSFileTree(drive, root.chillFile[i], PBS, level + 1);
 	}
 }
 
-void DisplayNTFSDirectoryFile(LPCWSTR  drive, NTFS_Directory_File temp, NTFS_PBS_Struct origin, int level)
+void DisplayNTFSDirectoryFile(LPCWSTR  drive, NTFS_Directory_File temp, NTFS_PBS_Struct PBS, int level)
 {
 	string padding = "";
 	for (int i = 0; i < level; i++)
@@ -356,15 +413,14 @@ void DisplayNTFSDirectoryFile(LPCWSTR  drive, NTFS_Directory_File temp, NTFS_PBS
 		padding += "     ";
 	}
 	cout << endl;
-	cout << padding << "File name: " << temp.fileName << endl;
-	cout << padding << "- File type: " << temp.fileType << endl;
-	cout << padding << "- File name type: " << temp.nameType << endl;
-
+	cout << padding << "- File name: " << temp.fileName << endl;
+	cout << padding << "+ File type: " << temp.fileType << endl;
+	cout << padding << "+ File name type: " << temp.nameType << endl;
 	if (temp.data == NULL)
 	{
 		return;
 	}
-	cout << padding << "- File sector: ";
+	cout << padding << "+ File sector: ";
 	if (temp.data->isContentInEntry)
 	{
 
@@ -372,52 +428,48 @@ void DisplayNTFSDirectoryFile(LPCWSTR  drive, NTFS_Directory_File temp, NTFS_PBS
 	}
 	else
 	{
-		cout << temp.data->firstCluster * origin.SecPerClus << ", ... , " << temp.data->firstCluster * origin.SecPerClus + (temp.data->countCluster * origin.SecPerClus - 1);
+		cout << temp.data->firstCluster * PBS.SecPerClus << ", ... , " << temp.data->firstCluster * PBS.SecPerClus + (temp.data->countCluster * PBS.SecPerClus - 1);
 	}
 	cout << endl;
-	cout << padding << "- File data: " << endl;
+	cout << padding << "+ File data: " << endl;
 
 	if (!temp.data->isContentInEntry)
 	{
 		if (temp.allowPrintData)
 		{
-			printFileNTFSData(drive, temp.data->countCluster, temp.data->firstCluster, origin);
+			printFileNTFSData(drive, temp.data->countCluster, temp.data->firstCluster, PBS);
 
 		}
 		else
 		{
-			cout << padding << "------------------------" << endl;
-			cout << padding << "Use another program to read this file" << endl;
-			cout << padding << "--------- EOF ------------" << endl;
+			cout << padding << "\033[91m" << "Use another program to read this file" << endl;
 		}
 	}
 	else
 	{
-		cout << padding  << "------------------------" << endl;
-		cout << padding  << "     FILE CONTENT" << endl;
-		cout << padding  << "------------------------" << endl;
-		cout << padding  << temp.data->data << endl;
-		cout << padding << "--------- EOF ------------" << "\033[0m" << endl;
+		cout << padding << "\033[91m" << "|" << setw(40) << setfill('-') << "|" << "\033[0m" << endl;
+		cout << padding << temp.data->dataHex << endl;
 	}
+	cout << padding << "\033[91m" << "|----------------- EOF -----------------|" << "\033[0m" << endl;
 	cout << endl;
 }
 
-void printFileNTFSData(LPCWSTR  drive, unsigned int clusterSize, unsigned int clusterBegin, NTFS_PBS_Struct origin)
+void printFileNTFSData(LPCWSTR  drive, unsigned int clusterSize, unsigned int clusterBegin, NTFS_PBS_Struct PBS)
 {
-	unsigned int begin = clusterBegin * origin.SecPerClus * origin.BytePerSec;
-	unsigned int totalSector = clusterSize * origin.SecPerClus;
+	unsigned int begin = clusterBegin * PBS.SecPerClus * PBS.BytePerSec;
+	unsigned int totalSector = clusterSize * PBS.SecPerClus;
 
-	BYTE* sector;
-	ReadNTFSSectorByByte(drive, begin, sector, totalSector * origin.BytePerSec);
-	printFileContent(sector, 0, totalSector * origin.BytePerSec);
+	BYTE sector[512];
+	ReadSector(drive, begin, sector);
+	printFileContent(sector, 0, totalSector * PBS.BytePerSec);
 
 }
 
 void printFileContent(BYTE sector[], unsigned int begin, unsigned int n)
 {
-	cout  << "------------------------" << endl;
-	cout  << "     FILE CONTENT" << endl;
-	cout  << "------------------------" << endl;
+	cout << "------------------------" << endl;
+	cout << "     FILE CONTENT" << endl;
+	cout << "------------------------" << endl;
 	unsigned int temp = begin;
 
 
@@ -431,7 +483,7 @@ void printFileContent(BYTE sector[], unsigned int begin, unsigned int n)
 
 	}
 
-	cout << endl << "--------- EOF ------------" << "\033[0m" << endl;
+	cout << endl << "------------ EOF ------------" << endl;
 }
 
 bool displayNTFS(LPCWSTR drive, BYTE sector[512])
@@ -446,9 +498,8 @@ bool displayNTFS(LPCWSTR drive, BYTE sector[512])
 
 	if (NTFSTotalResearch(drive, sector, PBS, mft, ntfs))
 	{
-		//fat
-		cout << endl;
-		cout << "*********** Directory  Tree ***********" << endl;
+		cout << "========================================================================\n";
+		cout << setw(42) << setfill(' ') << "Directory TREE" << endl;
 		DisplayNTFSFileTree(drive, ntfs, PBS, 0);
 
 		return true;

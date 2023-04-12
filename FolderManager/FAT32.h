@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "ReadSector.h"
-
+#include "NTFS.h"
 struct FAT32_PBS_STRUCT
 {
 	unsigned int BytesPerSector = 0;
@@ -29,7 +29,7 @@ struct FAT32_PBS_STRUCT
 
 struct Entry
 {
-	int attribute;
+	BYTE attribute;
 	bool subEntry = 0;
 	BYTE content[32];
 };
@@ -38,6 +38,8 @@ struct FAT32_Directory_File
 {
 	string attribute; // loại 
 	wstring name = L""; // tên
+	wstring extension;
+	bool LFN_flag = 0;
 	unsigned int beginCluster; // cluster bắt đầu
 	unsigned int size; // kích thước
 	Entry* currentEntry; // Entry hiện tại
@@ -46,7 +48,7 @@ struct FAT32_Directory_File
 	unsigned int numOfEntries; // số lượng entry
 	unsigned int numOfFiles; // số lượng file
 	vector <FAT32_Directory_File> child; //các file/folder con (nếu là thư mục)
-	vector <FAT32_Directory_File> father; // các thư mục cha
+	int level = 0;
 };
 
 bool isFAT32(BYTE sector[512]);
@@ -54,6 +56,9 @@ void DisplayFAT32PBSInfo(BYTE Sector[512], FAT32_PBS_STRUCT& PBS);
 void readMainEntryInfo(Entry e, FAT32_Directory_File& dir);
 wstring readSubEntryInfo(Entry e);
 unsigned int RDETNumOSector(LPCWSTR  drive, FAT32_PBS_STRUCT PBS);
+void readSDET(LPCWSTR  drive, FAT32_PBS_STRUCT PBS, FAT32_Directory_File& dir);
 void readRDET(LPCWSTR  drive, FAT32_PBS_STRUCT PBS);
 void readDirectoryEntry(LPCWSTR  drive, BYTE* sector, unsigned int& i, FAT32_PBS_STRUCT PBS, FAT32_Directory_File& dir);
+void DisplayFAT32DirectoryFile(LPCWSTR  drive, FAT32_Directory_File temp, FAT32_PBS_STRUCT PBS, int level);
+
 

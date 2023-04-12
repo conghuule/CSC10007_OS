@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-﻿  NTFS.cpp
-C:\Users\Huu\Documents\D\CNTT_K20\HK6\HĐH_Hệ điều hành\Code\conghuule\CSC10007_OS\FolderManager\NTFS.cpp(225,41): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\Huu\Documents\D\CNTT_K20\HK6\HĐH_Hệ điều hành\Code\conghuule\CSC10007_OS\FolderManager\NTFS.cpp(239,93): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
-  FolderManager.vcxproj -> C:\Users\Huu\Documents\D\CNTT_K20\HK6\HĐH_Hệ điều hành\Code\conghuule\CSC10007_OS\x64\Debug\FolderManager.exe
-=======
-﻿  FolderManager.vcxproj -> D:\Study\HDH\CSC10007_OS\x64\Debug\FolderManager.exe
->>>>>>> Stashed changes
+﻿  FAT32.cpp
+D:\Study\HDH\CSC10007_OS\FolderManager\FAT32.cpp(54,14): warning C4553: '==': result of expression not used; did you intend '='?
+D:\Study\HDH\CSC10007_OS\FolderManager\FAT32.cpp(120,27): warning C4552: '>': result of expression not used
+  FolderManager.vcxproj -> D:\Study\HDH\CSC10007_OS\x64\Debug\FolderManager.exe

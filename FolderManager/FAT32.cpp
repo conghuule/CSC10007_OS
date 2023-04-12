@@ -55,19 +55,41 @@ void setEntryType(Entry& e)
 	}
 }
 
-void setEntryAttr(Entry& e)
+bool checkEmptyEntry(Entry e)
 {
-	unsigned int dec = ByteToDec(e.content[11]);
-	switch (dec) {
-	case 1: e.attribute = 0; break;
-	case 2: e.attribute = 1; break;
-	case 4: e.attribute = 2; break;
-	case 8: e.attribute = 3; break;
-	case 16: e.attribute = 4; break;
-	case 32: e.attribute = 5; break;
-	case 64: e.attribute = 6; break;
-	case 128: e.attribute = 7; break;
+	bool check = 1;
+	for (int i = 0; i < 32; i++)
+	{
+		if (ByteToDec(e.content[i]) != 0)
+			check = 0;
 	}
+	return check;
+}
+
+void setAttribute(Entry e, FAT32_Directory_File& dir)
+{
+	string res = "";
+	unsigned short type = 0;
+	while (e.attribute > 0)
+	{
+
+		if (e.attribute % 2 == 1)
+		{
+			switch (type)
+			{
+			case 0: res += "Read Only "; break;
+			case 1: res += "Hidden "; break;
+			case 2: res += "System "; break;
+			case 3: res += "Vollable "; break;
+			case 4: res += "Directory "; break;
+			case 5: res += "Archive "; break;
+
+			}
+		}
+		type++;
+		e.attribute >>= 1;
+	}
+	dir.attribute = res;
 }
 
 unsigned int clusterToSector(FAT32_PBS_STRUCT PBS, unsigned int cluster)
@@ -81,17 +103,8 @@ void readMainEntryInfo(Entry e, FAT32_Directory_File& dir)
 	for (int i = 0; i < 8; i++)
 		dir.name += char(e.content[i]);
 	for (int i = 8; i < 11; i++)
-		dir.name += char(e.content[i]);
-	switch (e.attribute) {
-	case 0: dir.attribute = "Read Only"; break;
-	case 1: dir.attribute = "Hidden"; break;
-	case 2: dir.attribute = "System"; break;
-	case 3: dir.attribute = "VolLabel"; break;
-	case 4: dir.attribute = "Directory"; break;
-	case 5: dir.attribute = "Archive"; break;
-	case 6: dir.attribute = "Device (internal use only)"; break;
-	case 7: dir.attribute = "Unused"; break;
-	}
+		dir.extension += char(e.content[i]);
+	
 	string beginClusterhex = DecToHex(ByteToDec(e.content[21]));
 	beginClusterhex += DecToHex(ByteToDec(e.content[20]));
 	beginClusterhex += DecToHex(ByteToDec(e.content[27]));
@@ -160,7 +173,6 @@ wstring readSubEntryInfo(Entry e)
 	return res;
 }
 
-
 void readFATTable(LPCWSTR  drive, FAT32_PBS_STRUCT PBS, vector<unsigned int>& clusters, unsigned int beginCluster)
 {
 	unsigned int readPoint = PBS.SectorsInPBS * PBS.BytesPerSector;
@@ -181,7 +193,6 @@ void readFATTable(LPCWSTR  drive, FAT32_PBS_STRUCT PBS, vector<unsigned int>& cl
 		offset = clusterNum * 4;
 		if (cluster_string != "0fffffff")
 			clusters.push_back(clusterNum);
-		cout << clusterNum;
 	}
 }
 
@@ -203,45 +214,29 @@ unsigned int RDETNumOSector(LPCWSTR  drive, FAT32_PBS_STRUCT PBS)
 	return count;
 }
 
-void showDirectoryFile(LPCWSTR  drive, FAT32_PBS_STRUCT PBS, FAT32_Directory_File dir)
-{
-	cout << "\n===================================================\n";
-	cout << "FILE/FOLDER INFO\n";
-	wcout << L"Name: " << dir.name << endl;
-	cout << "Attribute: " << dir.attribute << endl;
-	cout << "Begin Cluster: " << dir.beginCluster << endl;
-	cout << "Lists of Clusters: ";
-	for (int i = 0; i < dir.clusters.size(); i++)
-		cout << dir.clusters[i] << " ";
-	cout << "\nList of Sectors: ";
-	cout << clusterToSector(PBS, dir.beginCluster) << ",..., " << clusterToSector(PBS, dir.beginCluster) + dir.clusters.size() * PBS.SectorsPerCluster << endl;
-	cout << "File size: " << dir.size << endl;
-
-
-}
-
 void readDirectoryEntry(LPCWSTR  drive, BYTE* sector, unsigned int& i, FAT32_PBS_STRUCT PBS, FAT32_Directory_File& dir)
 {
-	dir.numOfEntries = 0;
 	wstring longname = L"";
+	int count = 0;
 	while (true)
 	{
 		Entry e;
 		for (int j = 0; j < 32; j++) {
 			e.content[j] = sector[i + j];
 		}
-		setEntryAttr(e);
+		e.attribute = e.content[11];
 		setEntryType(e);
-		if (DecToHex(ByteToDec(e.content[0])) != "e5" || DecToHex(ByteToDec(e.content[0])) != "00")
+		setAttribute(e, dir);
+		string status = DecToHex(ByteToDec(e.content[0]));
+		if (status.find("e5") == string::npos && status.find("00") == string::npos)
 		{
-			if (e.content[11] == 15)
+			if (ByteToDec(e.content[11]) == 15)
 			{
-				dir.numOfEntries++;
+				dir.LFN_flag = 1;
 				longname.insert(0, readSubEntryInfo(e));
 			}
 			else
 			{
-				dir.numOfEntries++;
 				readMainEntryInfo(e, dir);
 				readFATTable(drive, PBS, dir.clusters, dir.beginCluster);
 				i += 32;
@@ -250,8 +245,10 @@ void readDirectoryEntry(LPCWSTR  drive, BYTE* sector, unsigned int& i, FAT32_PBS
 		}
 		i += 32;
 	}
-	dir.name = longname;
-
+	if (dir.LFN_flag)
+	{
+		dir.name = longname;
+	}
 }
 
 void readRDET(LPCWSTR  drive, FAT32_PBS_STRUCT PBS)
@@ -260,29 +257,106 @@ void readRDET(LPCWSTR  drive, FAT32_PBS_STRUCT PBS)
 	unsigned int readSize = RDETNumOSector(drive, PBS) * PBS.BytesPerSector;
 	BYTE* sector;
 	ReadNTFSSectorByByte(drive, readPoint, sector, readSize);
-	displaySector(sector, readSize);
 	vector <FAT32_Directory_File> dirs;
 	unsigned int i = 0;
 	while (i < readSize)
 	{
 		FAT32_Directory_File dir;
 		readDirectoryEntry(drive, sector, i, PBS, dir);
-		showDirectoryFile(drive, PBS, dir);
-		/*if (dir.attribute == "Directory")
+		DisplayFAT32DirectoryFile(drive, dir, PBS, dir.level);
+		if (dir.attribute.find("Directory") != string::npos)
 		{
 			readSDET(drive, PBS, dir);
 		}
-		dirs.push_back(dir);*/
+		dirs.push_back(dir);
 
 	}
 }
 
 void readSDET(LPCWSTR  drive, FAT32_PBS_STRUCT PBS, FAT32_Directory_File& dir)
 {
-	readFATTable(drive, PBS, dir.clusters, dir.beginCluster);
-	BYTE* childSector;
+	unsigned int readPoint = clusterToSector(PBS, dir.beginCluster) * PBS.BytesPerSector;
+	bool flag = 1;
+	unsigned int i = 32 * 2;
+	while (flag)
+	{
+		BYTE* childSector;
+		ReadNTFSSectorByByte(drive, readPoint, childSector, 512);
+		FAT32_Directory_File childFile;
+		wstring longname = L"";
+		while (true)
+		{
+			Entry e;
+			for (int j = 0; j < 32; j++) {
+				e.content[j] = childSector[i + j];
+			}
+			e.attribute = e.content[11];
+			if (checkEmptyEntry(e))
+			{
+				return;
+			}
+			setAttribute(e, childFile);
+			setEntryType(e);
+			string status = DecToHex(ByteToDec(e.content[0]));
+			if (status.find("e5") == string::npos && status.find("00") == string::npos)
+			{
+				if (ByteToDec(e.content[11] == 15))
+				{
+					dir.LFN_flag = 1;
+					longname.insert(0, readSubEntryInfo(e));
+				}
+				else 
+				{
+					readMainEntryInfo(e, childFile);
+					readFATTable(drive, PBS, childFile.clusters, childFile.beginCluster);
+					i += 32;
+					break;
+				}
+			}
+			i += 32;
+		}
+		if (dir.LFN_flag)
+		{
+			dir.name = longname;
+		}
+		childFile.level++;
+		dir.child.push_back(childFile);
+		DisplayFAT32DirectoryFile(drive, childFile, PBS, childFile.level);
+		if (childFile.attribute.find("Directory") != string::npos)
+			readSDET(drive, PBS, childFile);
+		readPoint += 512;
+		if (!flag)
+		{
+			break;
+		}
 
-	FAT32_Directory_File childFile;
+	}
+}
 
-
+void DisplayFAT32DirectoryFile(LPCWSTR  drive, FAT32_Directory_File temp, FAT32_PBS_STRUCT PBS, int level)
+{
+	string padding = "";
+	wstring wpadding = L"";
+	for (int i = 0; i < level; i++)
+	{
+		padding += "     ";
+		wpadding += L"     ";
+	}
+	cout << endl;
+	wcout << wpadding << L"- File name: " << temp.name << endl;
+	cout << padding << "+ File attribute: " << temp.attribute << endl;
+	cout << padding << "+ File sector: ";
+	cout << clusterToSector(PBS, temp.beginCluster) << "..." << clusterToSector(PBS, temp.beginCluster) + temp.clusters.size() * PBS.SectorsPerCluster << endl;
+	cout << padding << "+ File data: " << endl;
+	if (temp.extension.find(L"txt") != string::npos || temp.extension.find(L"TXT") != string::npos)
+	{
+		unsigned int dataSector = clusterToSector(PBS, temp.beginCluster) * PBS.BytesPerSector;
+		BYTE content[512];
+		ReadSector(drive, dataSector, content);
+		printFileContent(content, 0, 512);
+	}
+	else
+	{
+		cout << padding << "\033[91m" << "Use another program to read this file" << endl;
+	}
 }
