@@ -29,26 +29,22 @@ struct FAT32_PBS_STRUCT
 
 struct Entry
 {
-	BYTE attribute;
-	bool subEntry = 0;
-	BYTE content[32];
+	BYTE attribute; //thuộc tính của Entry
+	bool subEntry = 0; //là entry phụ hay chính
+	BYTE content[32]; //các byte lưu trong entry
 };
 
 struct FAT32_Directory_File
 {
 	string attribute; // loại 
 	wstring name = L""; // tên
-	wstring extension;
-	bool LFN_flag = 0;
+	wstring extension; // phần mở rộng
+	bool LFN_flag = 0; // cờ long file name
 	unsigned int beginCluster; // cluster bắt đầu
 	unsigned int size; // kích thước
-	Entry* currentEntry; // Entry hiện tại
 	vector<unsigned int> clusters; //danh sách các clusters
-	vector<unsigned int> sectors; //danh sách các sector
-	unsigned int numOfEntries; // số lượng entry
-	unsigned int numOfFiles; // số lượng file
 	vector <FAT32_Directory_File> child; //các file/folder con (nếu là thư mục)
-	int level = 0;
+	int level = 0; //level trong cây thư mục
 };
 
 bool isFAT32(BYTE sector[512]);

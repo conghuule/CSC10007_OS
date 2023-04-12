@@ -100,16 +100,16 @@ unsigned int clusterToSector(FAT32_PBS_STRUCT PBS, unsigned int cluster)
 void readMainEntryInfo(Entry e, FAT32_Directory_File& dir)
 {
 	for (int i = 0; i < 8; i++)
-		dir.name += char(e.content[i]);
+		dir.name += char(e.content[i]); // đọc 8 ký tự đầu của tên
 	for (int i = 8; i < 11; i++)
-		dir.extension += char(e.content[i]);
+		dir.extension += char(e.content[i]); // đọc 3 ký tự phần mở rộng
 	
 	string beginClusterhex = DecToHex(ByteToDec(e.content[21]));
 	beginClusterhex += DecToHex(ByteToDec(e.content[20]));
 	beginClusterhex += DecToHex(ByteToDec(e.content[27]));
 	beginClusterhex += DecToHex(ByteToDec(e.content[26]));
-	dir.beginCluster = HexToDec(beginClusterhex);
-
+	dir.beginCluster = HexToDec(beginClusterhex); //đọc cluster bắt đầu
+	//đọc kích thước (kích thước = 0 nếu là tập tin)
 	if (dir.attribute == "Directory")
 	{
 		dir.size = 0;
@@ -125,7 +125,7 @@ void readMainEntryInfo(Entry e, FAT32_Directory_File& dir)
 				break;
 			}
 		}
-		dir.size = HexToDec(sizeHex);
+		dir.size = HexToDec(sizeHex); 
 	}
 
 }
@@ -133,6 +133,7 @@ void readMainEntryInfo(Entry e, FAT32_Directory_File& dir)
 wstring readSubEntryInfo(Entry e)
 {
 	wstring res = L"";
+	//đọc 5 ký tự đầu
 	for (int i = 0; i < 5; i++)
 	{
 		unsigned short dec = 0 + (unsigned short)e.content[1 + 2 * i + 1];
@@ -145,6 +146,7 @@ wstring readSubEntryInfo(Entry e)
 		wchar_t ch = wchar_t(dec);
 		res += ch;
 	}
+	//đọc 6 ký tự tiếp
 	for (int i = 0; i < 6; i++)
 	{
 		unsigned short dec = 0 + (unsigned short)e.content[14 + 2 * i + 1];
@@ -157,6 +159,7 @@ wstring readSubEntryInfo(Entry e)
 		wchar_t ch = wchar_t(dec);
 		res += ch;
 	}
+	//đọc 2 ký tự tiếp
 	for (int i = 0; i < 2; i++)
 	{
 		unsigned short dec = 0 + (unsigned short)e.content[28 + 2 * i + 1];
@@ -256,7 +259,6 @@ void readRDET(LPCWSTR  drive, FAT32_PBS_STRUCT PBS)
 	unsigned int readSize = RDETNumOfSector(drive, PBS) * PBS.BytesPerSector;
 	BYTE* sector;
 	ReadNTFSSectorByByte(drive, readPoint, sector, readSize);
-	vector <FAT32_Directory_File> dirs;
 	unsigned int i = 0;
 	while (i < readSize)
 	{
@@ -266,9 +268,7 @@ void readRDET(LPCWSTR  drive, FAT32_PBS_STRUCT PBS)
 		if (dir.attribute.find("Directory") != string::npos)
 		{
 			readSDET(drive, PBS, dir);
-		}
-		dirs.push_back(dir);
-		
+		}		
 	}
 }
 
