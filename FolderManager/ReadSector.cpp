@@ -129,11 +129,23 @@ string HexToAscii(string n)
 /// display content of a Sector
 /// </summary>
 /// <param name="sector">sector array</param>
-void displaySector(BYTE sector[512])
+void displaySector(BYTE* sector, unsigned int n)
 {
+<<<<<<< Updated upstream
     cout << "==============================================================\n";
     cout << "Sector's content:\n";
     for (unsigned int i = 0; i < 512; i++)
+=======
+    cout << "========================================================================\n";
+    cout << setw(45) << setfill(' ') << "SECTOR CONTENT\n\n";
+    cout << "          ";
+    for (unsigned int i = 0; i < 16; i++)
+    {
+        cout << DecToHex(i) << "  ";
+    }
+
+    for (unsigned int i = 0; i < n; i++)
+>>>>>>> Stashed changes
     {
         if (i % 16 == 0 && i > 0)
         {
@@ -152,7 +164,11 @@ void displaySector(BYTE sector[512])
 /// <param name="offset">The offset you want to start reading (hexadecimal)</param>
 /// <param name="n_of_bytes">number of bytes you want to read from the offset</param>
 /// <returns></returns>
+<<<<<<< Updated upstream
 int readByteByOffset(BYTE sector[512], string& res, string offset, unsigned int n_of_bytes)
+=======
+unsigned int readByteByOffset(BYTE* sector, string& res, string offset, unsigned int n_of_bytes)
+>>>>>>> Stashed changes
 {
     unsigned int index = HexToDec(offset);
     res = "";

@@ -15,14 +15,14 @@ int main(int argc, char** argv)
     ReadSector(path.c_str(), 0, sector); //read the first sector, save info into sector array
     //string res = "";
     //cout << readByteByOffset(sector, res, "0b", 2); //read 2 BYTES from offset "0b"
-    displaySector(sector);
-
+    displaySector(sector, 512);
+    FAT32_PBS_STRUCT PBS;
     //---------------Đọc thông tin chi tiết của một phân vùng--------------- 
    /* DisplayFAT32PBSInfo(sector);
     DisplayPBSInfo(sector);*/
     //---------------------------
-    displayNTFS(path.c_str(), sector);
-
-
+    //displayNTFS(path.c_str(), sector);
+    DisplayFAT32PBSInfo(sector, PBS);
+    readRDET(path.c_str(), PBS);
     return 0;
 }

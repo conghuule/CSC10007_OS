@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ReadSector.h"
 
 struct FAT32_PBS_STRUCT
@@ -27,5 +27,33 @@ struct FAT32_PBS_STRUCT
 	string IsFAT32_Hex = "";
 };
 
-//bool IsFAT32(BYTE sector[512]);
-void DisplayFAT32PBSInfo(BYTE Sector[512]);
+struct Entry
+{
+	int attribute;
+	bool subEntry = 0;
+	BYTE content[32];
+};
+
+struct FAT32_Directory_File
+{
+	string attribute; // loại 
+	wstring name = L""; // tên
+	unsigned int beginCluster; // cluster bắt đầu
+	unsigned int size; // kích thước
+	Entry* currentEntry; // Entry hiện tại
+	vector<unsigned int> clusters; //danh sách các clusters
+	vector<unsigned int> sectors; //danh sách các sector
+	unsigned int numOfEntries; // số lượng entry
+	unsigned int numOfFiles; // số lượng file
+	vector <FAT32_Directory_File> child; //các file/folder con (nếu là thư mục)
+	vector <FAT32_Directory_File> father; // các thư mục cha
+};
+
+bool isFAT32(BYTE sector[512]);
+void DisplayFAT32PBSInfo(BYTE Sector[512], FAT32_PBS_STRUCT& PBS);
+void readMainEntryInfo(Entry e, FAT32_Directory_File& dir);
+wstring readSubEntryInfo(Entry e);
+unsigned int RDETNumOSector(LPCWSTR  drive, FAT32_PBS_STRUCT PBS);
+void readRDET(LPCWSTR  drive, FAT32_PBS_STRUCT PBS);
+void readDirectoryEntry(LPCWSTR  drive, BYTE* sector, unsigned int& i, FAT32_PBS_STRUCT PBS, FAT32_Directory_File& dir);
+
