@@ -40,7 +40,6 @@ int ReadNTFSSectorByByte(LPCWSTR  drive, unsigned int readPoint, BYTE*& sector, 
     sector = new BYTE[totalByteSector];
     LARGE_INTEGER scale;
     scale.QuadPart = readPoint;
-    //cout << endl << scale.LowPart << "-" << scale.HighPart << endl;
     DWORD bytesRead;
     HANDLE device = NULL;
 

@@ -459,13 +459,14 @@ void printFileNTFSData(LPCWSTR  drive, unsigned int clusterSize, unsigned int cl
 	unsigned int begin = clusterBegin * PBS.SecPerClus * PBS.BytePerSec;
 	unsigned int totalSector = clusterSize * PBS.SecPerClus;
 
-	BYTE sector[512];
-	ReadSector(drive, begin, sector);
-	printFileContent(sector, 0, totalSector * PBS.BytePerSec);
+	BYTE* sector = NULL;
+	unsigned int size = totalSector * origin.BytePerSec;
+	ReadNTFSSectorByByte(drive, begin, sector, size);
+	printFileContent(sector, 0, size);
 
 }
 
-void printFileContent(BYTE sector[], unsigned int begin, unsigned int n)
+void printFileContent(BYTE* sector, unsigned int begin, unsigned int n)
 {
 	cout << "------------------------" << endl;
 	cout << "     FILE CONTENT" << endl;
