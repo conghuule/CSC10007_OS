@@ -460,7 +460,7 @@ void printFileNTFSData(LPCWSTR  drive, unsigned int clusterSize, unsigned int cl
 	unsigned int totalSector = clusterSize * PBS.SecPerClus;
 
 	BYTE* sector = NULL;
-	unsigned int size = totalSector * origin.BytePerSec;
+	unsigned int size = totalSector * PBS.BytePerSec;
 	ReadNTFSSectorByByte(drive, begin, sector, size);
 	printFileContent(sector, 0, size);
 

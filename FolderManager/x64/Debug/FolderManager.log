@@ -1,4 +1,4 @@
 ﻿  FAT32.cpp
 D:\Study\HDH\CSC10007_OS\FolderManager\FAT32.cpp(54,14): warning C4553: '==': result of expression not used; did you intend '='?
-D:\Study\HDH\CSC10007_OS\FolderManager\FAT32.cpp(120,27): warning C4552: '>': result of expression not used
+D:\Study\HDH\CSC10007_OS\FolderManager\FAT32.cpp(119,27): warning C4552: '>': result of expression not used
   FolderManager.vcxproj -> D:\Study\HDH\CSC10007_OS\x64\Debug\FolderManager.exe
